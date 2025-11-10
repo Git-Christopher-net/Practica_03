@@ -1,0 +1,53 @@
+# Archivos y carpetas de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Entornos virtuales
+venv/
+.env/
+.venv/
+
+# Archivos de configuración y dependencias
+*.log
+*.pot
+*.pyproj
+
+# Cobertura y pruebas
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Reportes y resultados de pruebas
+*.spec
+*.out
+*.tmp
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de distribución
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Archivos de documentación generada
+docs/_build/
+
+# Configuración de entorno
+.env.local
+.env.development
+.env.production
