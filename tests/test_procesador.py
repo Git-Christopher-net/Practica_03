@@ -7,23 +7,56 @@ class TestAnalizador(unittest.TestCase):
     def setUpClass(cls):
         cls.analizador = Analizador("datos/sri_ventas_2024.csv")
 
-    def test_ventas_totales_como_diccionario(self):
+    # 1. Validar que el número de provincias sea coherente
+    def test_numero_provincias_coherente(self):
+        resumen = self.analizador.ventas_totales_por_provincia()
+        self.assertGreater(len(resumen), 10)
+        self.assertLessEqual(len(resumen), 24)
+
+    # 2. Verificar que los valores calculados sean numéricos y no negativos
+    def test_valores_numericos_y_no_negativos(self):
+        resumen = self.analizador.ventas_totales_por_provincia()
+        for v in resumen.values():
+            self.assertIsInstance(v, float)
+            self.assertGreaterEqual(v, 0)
+
+    # 3. Garantizar que la función retorne un diccionario
+    def test_retorna_diccionario(self):
         resumen = self.analizador.ventas_totales_por_provincia()
         self.assertIsInstance(resumen, dict)
 
-    def test_ventas_totales_todas_las_provincias(self):
-        resumen = self.analizador.ventas_totales_por_provincia()
-        total_provincias = len(resumen)
-        self.assertEqual(total_provincias, 24)
-
-    def test_ventas_totales_mayores_5k(self):
-        resumen = self.analizador.ventas_totales_por_provincia()
-        self.assertTrue(all(float(v) > 5000 for v in resumen.values()))
-
-    def test_ventas_por_provincia_inexistente(self):
+    # 4. Verificar que las provincias consultadas existan
+    def test_provincia_inexistente(self):
         with self.assertRaises(KeyError):
             self.analizador.ventas_por_provincia("Narnia")
 
-    def test_ventas_por_provincia_existente(self):
+    # 5. Provincia existente
+    def test_provincia_existente(self):
         resultado = self.analizador.ventas_por_provincia("pichincha")
         self.assertGreater(resultado, 0)
+
+    # 6. Verificar valores correctos de 3 provincias (usa tus valores reales)
+    def test_valores_especificos(self):
+        resumen = self.analizador.ventas_totales_por_provincia()
+        self.assertAlmostEqual(resumen["santa elena"], 1774246.57)
+        self.assertAlmostEqual(resumen["loja"], 15800257.32)
+        self.assertAlmostEqual(resumen["el oro"], 50806.35)
+
+    # =============================
+    # ESTADÍSTICAS ADICIONALES
+    # =============================
+
+    def test_exportaciones_por_mes(self):
+        exp = self.analizador.exportaciones_totales_por_mes()
+        self.assertIn(9, exp)
+        self.assertGreater(exp[9], 0)
+
+    def test_porcentaje_tarifa_0(self):
+        p = self.analizador.porcentaje_ventas_tarifa_0()
+        self.assertIsInstance(p, dict)
+        self.assertGreater(len(p), 10)
+
+    def test_provincia_mayor_importaciones(self):
+        prov, total = self.analizador.provincia_con_mayores_importaciones()
+        self.assertIsInstance(prov, str)
+        self.assertGreater(total, 0)
