@@ -14,11 +14,12 @@ class Analizador:
             lector = csv.DictReader(archivo, delimiter="|")
 
             for fila in lector:
-                datos_raw.append(fila.copy())
+                fila_normalizada = {k: v.strip() for k, v in fila.items()}
+                datos_raw.append(fila_normalizada)
 
-                provincia = fila["PROVINCIA"].strip().lower()
-
-                ventas = float(fila["TOTAL_VENTAS"])
+                # datos simplificados
+                provincia = fila_normalizada["PROVINCIA"].lower()
+                ventas = float(fila_normalizada["TOTAL_VENTAS"])
 
                 datos.append({
                     "provincia": provincia,
@@ -32,13 +33,13 @@ class Analizador:
     # ----------------------------------------------------
     def ventas_totales_por_provincia(self):
         resumen = {}
-        for fila in self.datos:
+        for fila in self.datos:     #  <--- CORRECTO (usa datos simplificados)
             prov = fila["provincia"]
             resumen[prov] = resumen.get(prov, 0) + fila["ventas"]
         return resumen
 
     def ventas_por_provincia(self, provincia):
-        provincia = provincia.lower()
+        provincia = provincia.strip().lower()
         resumen = self.ventas_totales_por_provincia()
 
         if provincia not in resumen:
@@ -50,37 +51,39 @@ class Analizador:
     # ----------------------------------------------------
     def exportaciones_totales_por_mes(self):
         resumen = {}
-        for fila in self.datos_raw:
+        for fila in self.datos_raw:    #  <--- AHORA CORRECTO
             mes = int(fila["MES"])
             export = float(fila["EXPORTACIONES"])
             resumen[mes] = resumen.get(mes, 0) + export
         return resumen
 
     # ----------------------------------------------------
-    # 3️⃣ PORCENTAJE DE VENTAS TARIFA 0%
+    # 3️⃣ PORCENTAJE PROMEDIO DE TARIFA 0%
     # ----------------------------------------------------
     def porcentaje_ventas_tarifa_0(self):
-        resultado = {}
-        for fila in self.datos_raw:
+        acumulado = {}
+        contador = {}
+
+        for fila in self.datos_raw:   #  <--- AHORA CORRECTO
             prov = fila["PROVINCIA"].lower()
+
             tarifa_0 = float(fila["VENTAS_NETAS_TARIFA_0"])
             total = float(fila["TOTAL_VENTAS"])
 
-            if total > 0:
-                porcentaje = (tarifa_0 / total) * 100
-            else:
-                porcentaje = 0
+            porcentaje = (tarifa_0 / total) * 100 if total > 0 else 0
 
-            resultado[prov] = resultado.get(prov, 0) + porcentaje
+            acumulado[prov] = acumulado.get(prov, 0) + porcentaje
+            contador[prov] = contador.get(prov, 0) + 1
 
-        return resultado
+        return {p: acumulado[p] / contador[p] for p in acumulado}
 
     # ----------------------------------------------------
     # 4️⃣ PROVINCIA CON MAYORES IMPORTACIONES
     # ----------------------------------------------------
     def provincia_con_mayores_importaciones(self):
         resumen = {}
-        for fila in self.datos_raw:
+
+        for fila in self.datos_raw:   #  <--- AHORA CORRECTO
             prov = fila["PROVINCIA"].lower()
             imp = float(fila["IMPORTACIONES"])
             resumen[prov] = resumen.get(prov, 0) + imp
